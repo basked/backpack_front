@@ -1,32 +1,92 @@
+<
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
+  <div v-if=this.$store.getters.isVisible>
+    <Dashboard/>
   </div>
+
+  <div v-else>
+    <Auth/>
+  </div>
+
 </template>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+<script>
+import Auth from './components/Auth'
+import Dashboard from './views/Dashboard'
+
+
+export default {
+  components: {Auth, Dashboard},
+  name: 'App'
+
 }
 
-#nav {
-  padding: 30px;
-}
+</script>
 
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
 
-#nav a.router-link-exact-active {
-  color: #42b983;
-}
-</style>
+<!--<template>-->
+<!--  <v-app>-->
+<!--    <div v-if=this.$store.getters.isVisible>-->
+<!--      <Drawer :drawer="drawer"/>-->
+<!--      <v-app-bar app>-->
+<!--        <v-app-bar-nav-icon @click="drawer =!drawer"></v-app-bar-nav-icon>-->
+<!--        <v-toolbar-title>basked.pro</v-toolbar-title>-->
+<!--      </v-app-bar>-->
+<!--    </div>-->
+<!--    <div v-else>-->
+<!--      <Auth/>-->
+<!--    </div>-->
+
+
+<!--    &lt;!&ndash; Sizes your content based upon application components &ndash;&gt;-->
+<!--    <v-main>-->
+
+<!--      &lt;!&ndash; Provides the application the proper gutter &ndash;&gt;-->
+<!--      <v-container fluid>-->
+
+<!--        &lt;!&ndash; If using vue-router &ndash;&gt;-->
+<!--        <router-view></router-view>-->
+<!--      </v-container>-->
+<!--    </v-main>-->
+
+<!--    <Footer/>-->
+<!--  </v-app>-->
+<!--</template>-->
+
+<!--<script>-->
+<!--import Auth from './components/Auth'-->
+<!--import Footer from './components/Footer'-->
+<!--import Drawer from './components/Drawer'-->
+<!--import About from './views/About'-->
+
+
+<!--export default {-->
+<!--  components: {About, Auth, Drawer, Footer},-->
+
+<!--  name: "App",-->
+<!--  props: {-->
+<!--    source: String-->
+<!--  },-->
+<!--  data: () => ({-->
+<!--    drawer: false,-->
+<!--    items: [-->
+<!--      {title: 'Users', icon: 'mdi-speedometer', route: '/users'},-->
+<!--      {title: 'About', icon: 'mdi-help-box', route: '/about'},-->
+<!--    ]-->
+<!--  }),-->
+<!--  created: () => {-->
+<!--    // console.log(this.$store.getters.isVisible)-->
+<!--    // if (this.$store.getters.isVisible) {-->
+<!--    //-->
+<!--    //   this.$router.push('/auth')-->
+<!--    // }-->
+<!--  },-->
+<!--  computed: {-->
+
+<!--  },-->
+<!--}-->
+<!--</script>-->
+
+<!--<style scoped>-->
+
+<!--</style>-->
