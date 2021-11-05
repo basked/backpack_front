@@ -4,20 +4,19 @@ import Vuex from 'vuex'
 Vue.use(Vuex)
 
 export default new Vuex.Store({
-  state: {
-   token: localStorage.getItem('access_token')
-  },
-  mutations: {
+    state: {
+        token: localStorage.getItem('access_token')
+    },
+    mutations: {},
+    actions: {},
+    getters: {
+        isVisible: state => {
+            if (state.token) {
+                return state.token !== "undefined";
+            }
 
-  },
-  actions: {
-  },
-  getters:{
-    isVisible: state => {
-      return state.token !== "undefined";
-    }
-  },
+        }
+    },
 
-  modules: {
-  }
+    modules: {}
 })

@@ -100,7 +100,7 @@
 
 <script>
 export default {
-  name: 'Auth',
+  name: 'Login',
   props: {
     source: String
   },
@@ -127,11 +127,9 @@ export default {
       }).then(response => {
             const token = response.data.access_token
             localStorage.setItem('access_token', token)
-            if (token !== '') {
-              window.location.reload();
-              // setTimeout(() => {
-              //   this.$router.push('/about')
-              // }, 3000);
+            // console.log(this.$store.getters.isVisible)
+            if (this.$store.getters.isVisible) {
+              this.$router.push('/about')
             }
           }
       ).catch(error => {
@@ -146,13 +144,9 @@ export default {
       }).then(response => {
             const token = response.data.access_token
             localStorage.setItem('access_token', token)
-            if (token !== '') {
-              // this.$router.push('/')
-              window.location.reload();
-              // setTimeout(() => {
-              //   this.$router.push('/about')
-              // }, 3000);
-              //  this.$router.push('/about')
+            //  console.log(this.$store.getters.isVisible)
+            if (this.$store.getters.isVisible) {
+              this.$router.push('/about')
             }
           }
       ).catch(error => {

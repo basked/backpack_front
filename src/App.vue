@@ -1,22 +1,17 @@
 <
 <template>
-  <div v-if=this.$store.getters.isVisible>
-    <Dashboard/>
-  </div>
 
-  <div v-else>
-    <Auth/>
+  <div id="app"  >
+    <router-view  />
   </div>
 
 </template>
 
 <script>
-import Auth from './components/Auth'
-import Dashboard from './views/Dashboard'
 
 
 export default {
-  components: {Auth, Dashboard},
+
   name: 'App'
 
 }
