@@ -1,9 +1,16 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import store from "../store/index.js"
+import store from "../store/store.js"
+import Home from "../views/Home"
+import Middlewares from "../middlewares/";
 
 Vue.use(VueRouter)
 const routes = [
+    {
+        path: '/',
+        name: 'home',
+        component: Home
+    },
     {
         path: '',
         component: () => import('../layouts/main/Main.vue'),
@@ -11,21 +18,34 @@ const routes = [
             {
                 path: '/',
                 redirect: '/login',
+                meta: {
+                    authRequired: 'true',
+                    middleware: [Middlewares.guest],
+                }
+            },
+            {
+                path: '/dashboard',
+                name: 'dashboard',
+                component: () => import('../views/Dashboard'),
+                meta: {
+                    middleware: [Middlewares.auth]
+                }
             },
             {
                 path: '/users',
-                name: 'Users',
+                name: 'users',
                 component: () => import('../views/Users.vue'),
                 meta: {
-                    authRequired: 'true',
+                    middleware: [Middlewares.auth]
                 }
             },
             {
                 path: '/about',
-                name: 'About',
+                name: 'about',
                 component: () => import('../views/About'),
                 meta: {
-                    authRequired: 'true',
+                    middleware: [Middlewares.auth, Middlewares.checkPermissions],
+                    permissions: ['View Developer Dashboard']
                 }
             },
 
@@ -46,8 +66,15 @@ const routes = [
                 name: 'login',
                 component: () => import('@/views/pages/login/Login.vue'),
                 meta: {
-                    rule: 'editor'
+                    rule: 'editor',
+                    middleware: [Middlewares.guest]
                 }
+            },
+            {
+                path: '/error',
+                name: 'error',
+                component: () => import('@/views/Error.vue'),
+
             },
         ]
     }
@@ -89,26 +116,43 @@ const router = new VueRouter({
     routes
 })
 
+function nextCheck(context, middleware, index) {
+    const nextMiddleware = middleware[index];
+    if (!nextMiddleware) return context.next;
+
+    return (...parameters) => {
+        context.next(...parameters);
+        const nextMidd = nextCheck(context, middleware, index + 1);
+        nextMiddleware({...context, next: nextMidd});
+    }
+}
+
 router.beforeEach((to, from, next) => {
-
-    //logged in user trying to view log in page
-    //  if (to.name === 'login' && store.state.auth.isUserLoggedIn()) {
-    if (to.name === 'login' && store.getters.isVisible) {
-        router.push({name: 'Users'})
-    } else if (to.meta.authRequired) {
-        if (!store.getters.isVisible) {
-            router.push({name: 'login', query: {to: to.name}})
-
-        }
-        //     } else {
-        //         if(!commons.hasAccess(to.name, to.params.id)){
-        //             router.push({name: 'page-not-authorized'})
-        //         }
-        //     }
-        // }
+    if (to.meta.middleware) {
+        const middleware = Array.isArray(to.meta.middleware) ? to.meta.middleware : [to.meta.middleware];
+        const ctx = {
+            from,
+            next,
+            router,
+            to
+        };
+        const nextMiddleware = nextCheck(ctx, middleware, 1);
+        return middleware[0]({...ctx, next: nextMiddleware});
     }
-        return next()
-    }
-);
+    console.log('router.beforeEach')
+    return next();
+    /* OLD Version
+     console.log('beforeEach');
+         if (to.name === 'login' && store.state.auth.isUserLoggedIn()) {
+             router.push({name: 'users'})
+         } else if (to.meta.authRequired) {
+             if (!store.state.auth.isUserLoggedIn()) {
+                 router.push({name: 'login', query: {to: to.name}})
+
+             }
+         }
+         return next()
+     } */
+});
 
 export default router

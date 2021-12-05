@@ -2,6 +2,18 @@
   <v-app>
     <v-main>
       <v-container class="fill-height" fluid>
+        <v-alert
+            v-model="alert"
+            dismissible
+            color="cyan"
+            border="left"
+            elevation="2"
+            colored-border
+            icon="mdi-twitter"
+        >
+          User <strong>{{ name }}</strong> is autentificate!.
+        </v-alert>
+
         <v-row align="center" justify="center">
           <v-col cols="12" sm="8" md="8">
             <v-card class="elevation=12">
@@ -26,15 +38,15 @@
                         <v-form ref="form_sign_in"
                                 v-model="valid"
                                 lazy-validation>
-                          <v-text-field label="Email" name="email_login" prepend-icon="email" type="text"
+                          <v-text-field   label="Email" name="email_login" prepend-icon="email" type="text"
                                         color="teal accent-3" required v-model="email_login" :rules="email_loginRules"/>
-                          <v-text-field label="Password" name="password_login" prepend-icon="lock" type="password"
+                          <v-text-field   label="Password" name="password_login" prepend-icon="lock" type="password"
                                         color="teal accent-3" v-model="password_login"/>
                         </v-form>
                         <h3 class="text-center mt-3">Forget your password ?</h3>
                       </v-card-text>
                       <div class="text-center mt-3 mb-3">
-                        <v-btn :disabled="!valid" rounded color="teal accent-3" dark @click="signIn">SIGN IN</v-btn>
+                        <v-btn :disabled="!valid" rounded color="teal accent-3" dark @click="loginJWT">SIGN IN</v-btn>
                       </div>
                     </v-col>
                     <v-col cols="12" md="4" class="teal accent-3">
@@ -84,7 +96,7 @@
                         </v-form>
                       </v-card-text>
                       <div class="text-center mt-3 mb-3">
-                        <v-btn rounded color="teal accent-3" dark @click="signUp">SIGN UP</v-btn>
+                        <v-btn rounded color="teal accent-3" dark @click="regiserJWT">SIGN UP</v-btn>
                       </div>
                     </v-col>
                   </v-row>
@@ -105,55 +117,80 @@ export default {
     source: String
   },
   data: () => ({
+    alert: false,
     baseUrl: 'http://localhost/api/v1',
     valid: true,
     name: '',
     email: '',
     password: '',
-    email_login: '',
+    email_login: 'bas@bas.ru',
+    password_login: 'lastmove',
     email_loginRules: [
       v => !!v || 'E-mail is required',
       v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
     ],
-    password_login: '',
+
     step: 1
   }),
   methods: {
-    signIn() {
-      this.$refs.form_sign_in.validate()
-      this.axios.post(this.baseUrl + '/login', {
-        email: this.email_login,
-        password: this.password_login
-      }).then(response => {
-            const token = response.data.access_token
-            localStorage.setItem('access_token', token)
-            // console.log(this.$store.getters.isVisible)
-            if (this.$store.getters.isVisible) {
-              this.$router.push('/about')
-            }
-          }
-      ).catch(error => {
-        console.log(error)
-      })
+    checkLogin() {
+
+      // If user is already logged in notify
+      if (this.$store.state.AccessToken) {
+        this.alert = true
+        return false
+      }
+      return true
     },
-    signUp() {
-      this.axios.post(this.baseUrl + '/register', {
-        name: this.name,
-        email: this.email,
-        password: this.password,
-      }).then(response => {
-            const token = response.data.access_token
-            localStorage.setItem('access_token', token)
-            //  console.log(this.$store.getters.isVisible)
-            if (this.$store.getters.isVisible) {
-              this.$router.push('/about')
+    loginJWT() {
+
+      const payload = {
+        userDetails: {
+          email: this.email_login,
+          password: this.password_login,
+        }
+      }
+
+      this.$store.dispatch('auth/loginJWT', payload)
+          .then(() => {
+            // this.$refs.form_sign_in.validate()
+            this.$store.dispatch('auth/me') ;
+          })
+          .catch(error => {
+            console.log("There was an error logging in")
+            if (error.response) {
+            } else {
             }
-          }
-      ).catch(error => {
-        console.log(this.filename + error)
-      })
+          })
+
     },
 
+    regiserJWT() {
+    // if (!this.checkLogin()) {
+      //   this.$router.push('/error');
+      //   return
+      // }
+
+      const payload = {
+        userDetails: {
+          name: this.name,
+          email: this.email,
+          password: this.password,
+        }
+      }
+      this.$store.dispatch('auth/registerJWT', payload)
+          .then(() => {
+            this.$refs.form_sign_in.validate()
+            console.log('dispatch_RegisterJWT')
+            this.$router.push('/users');
+          })
+          .catch(error => {
+            console.log("There was an error logging in")
+            if (error.response) {
+            } else {
+            }
+          })
+    },
   }
 }
 </script>

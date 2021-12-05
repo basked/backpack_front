@@ -53,6 +53,7 @@ export default {
       items: [
         {title: 'Users', icon: 'mdi-speedometer', route: '/users'},
         {title: 'About', icon: 'mdi-help-box', route: '/about'},
+        {title: 'Dashboard', icon: 'mdi-help-box', route: '/dashboard'},
       ]
     }
   },
